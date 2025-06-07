@@ -2822,6 +2822,10 @@ k0sctl</a> and the <a href="https://github.com/k0sproject/k0sctl/blob/main/READM
 <td>Network CIDR to use for cluster VIP services. Defaults to <code>10.96.0.0/12</code>.</td>
 </tr>
 <tr>
+<td><code>primaryAddressFamily</code></td>
+<td>primaryAddressFamily defines the primary family for the cluster. Valid values are empty, <code>IPv4</code>, <code>IPv6</code>. If empty, K0s determines it based on <code>.spec.API.ExternalAddress</code>, if this isn't present it will use <code>.spec.API.Address.</code>. If both addresses are empty or the chosen address is a hostname, defaults to <code>IPv4</code>.</td>
+</tr>
+<tr>
 <td><code>clusterDomain</code></td>
 <td>Cluster Domain to be passed to the <a href="https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/#kubelet-config-k8s-io-v1beta1-KubeletConfiguration">kubelet</a> and the coredns configuration. Defaults to <code>cluster.local</code>.</td>
 </tr>
@@ -3376,7 +3380,7 @@ disable component deployment.</p>
 <li><code>adminPort</code> admin port to listen on (default 8133)</li>
 </ul>
 <h3 id="spectelemetry"><code>spec.telemetry</code><a class="headerlink" href="#spectelemetry" title="Permanent link">#</a></h3>
-<p>To improve the end-user experience k0s is configured by defaul to collect telemetry data from clusters and send it to the k0s development team. To disable the telemetry function, change the <code>enabled</code> setting to <code>false</code>.</p>
+<p>To improve the end-user experience k0s is configured by default to collect telemetry data from clusters and send it to the k0s development team. To disable the telemetry function, change the <code>enabled</code> setting to <code>false</code>.</p>
 <p>The telemetry interval is ten minutes.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">telemetry</span><span class="p">:</span>
