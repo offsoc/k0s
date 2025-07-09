@@ -25,8 +25,10 @@ smoketests := \
 	check-configchange \
 	check-containerdimports \
 	check-cplb-ipvs \
+	check-cplb-ipvs-ipv6 \
 	check-cplb-userspace \
 	check-cplb-userspace-extaddr \
+	check-cplb-userspace-ipv6 \
 	check-ctr \
 	check-custom-cidrs \
 	check-customca \
@@ -44,7 +46,8 @@ smoketests := \
 	check-extraargs \
 	check-hacontrolplane \
 	check-hostnameoverride \
-	check-ipv6 \
+	check-ipv6-calico \
+	check-ipv6-kuberouter \
 	check-k0scloudprovider \
 	check-kine \
 	check-kubectl \
@@ -59,6 +62,7 @@ smoketests := \
 	check-network-conformance-kuberouter \
 	check-network-conformance-kuberouter-nft \
 	check-nllb \
+	check-nllb-ipv6 \
 	check-noderole \
 	check-noderole-no-taints \
 	check-noderole-single \

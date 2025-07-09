@@ -33,7 +33,13 @@ sudo k0s start
 
 ## Upgrade a k0s cluster using k0sctl
 
-The upgrading of k0s clusters using k0sctl occurs not through a particular command (there is no `upgrade` sub-command in k0sctl) but by way of the configuration file. The configuration file describes the desired state of the cluster, and when you pass the description to the `k0sctl apply` command a discovery of the current state is performed and the system does whatever is necessary to bring the cluster to the desired state (for example, perform an upgrade).
+The upgrading of k0s clusters using k0sctl occurs not through a particular
+command (there is no `upgrade` sub-command in k0sctl) but by way of the
+configuration file. The configuration file describes the desired state of the
+cluster. When you pass the description to the `k0sctl apply` command, the system
+discovers the current state and performs whatever actions are necessary to bring
+the cluster to the desired state. For example, the system might perform an
+upgrade.
 
 ### k0sctl cluster upgrade process
 
@@ -52,7 +58,7 @@ You can configure the desired cluster version in the k0sctl configuration by set
 ```yaml
 spec:
   k0s:
-    version: {{{ extra.k8s_version }}}+k0s.0
+    version: {{{ k0s_version }}}
 ```
 
 If you do not specify a version, k0sctl checks online for the latest version and defaults to it.
@@ -75,7 +81,7 @@ INFO[0027] [ssh] 10.0.0.17:22: waiting for node to become ready again
 INFO[0027] [ssh] 10.0.0.17:22: upgrade successful
 INFO[0027] ==> Running phase: Disconnect from hosts
 INFO[0027] ==> Finished in 27s
-INFO[0027] k0s cluster version {{{ extra.k8s_version }}}+k0s.0 is now installed
+INFO[0027] k0s cluster version {{{ k0s_version }}} is now installed
 INFO[0027] Tip: To access the cluster you can now fetch the admin kubeconfig using:
 INFO[0027]      k0sctl kubeconfig
 ```

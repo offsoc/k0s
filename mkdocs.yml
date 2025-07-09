@@ -64,7 +64,6 @@ nav:
       - MetalLB Load Balancer: examples/metallb-loadbalancer.md
       - NGINX Ingress Controller: examples/nginx-ingress.md
       - Traefik Ingress Controller: examples/traefik-ingress.md
-      - Ambassador API Gateway: examples/ambassador-ingress.md
       - Ceph Storage with Rook: examples/rook-ceph.md
       - GitOps with Flux: examples/gitops-flux.md
       - OpenEBS storage: examples/openebs.md
@@ -78,10 +77,14 @@ nav:
       - Architecture: architecture/index.md
       - Command Line: cli/README.md
       - Kube-bench Security Benchmark: cis_benchmark.md
-  - Releases & Support: releases.md
+  - Governance:
+      - Security policy: security.md
+      - Releases & support model: releases.md
+      - CNCF:
+          - General Technical Review: governance/cncf/gtr.md
+          - TAG-Security self-assessment: governance/cncf/security-self-assessment.md
   - Commercial support: commercial-support.md
   - Adopters: adopters.md
-  - Security Policy: security.md
   - Contributing:
       - Getting Started: contributors/index.md
       - GitHub Workflow: contributors/github_workflow.md
@@ -118,11 +121,14 @@ plugins:
   - macros:
       j2_variable_start_string: "{{{"
       j2_variable_end_string: "}}}"
+      modules:
+        - k0s_mkdocs_hacks.macros
   - exclude:
       glob:
         - internal/*
         - "*.etag"
         - custom_theme/*
+        - mkdocs_modules/*
         - Dockerfile.serve-dev
         - k0s
         - k0s.exe
@@ -149,7 +155,6 @@ markdown_extensions:
   - footnotes
 
 extra:
-  k8s_version: !!python/object/apply:os.getenv ["KUBERNETES_VERSION"]
   generator: false
   social:
     - icon: fontawesome/brands/github

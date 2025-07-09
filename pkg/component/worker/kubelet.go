@@ -72,8 +72,9 @@ var _ manager.Component = (*Kubelet)(nil)
 func (k *Kubelet) Init(_ context.Context) error {
 
 	if runtime.GOOS == "windows" {
-		err := assets.Stage(k.K0sVars.BinDir, "kubelet.exe")
-		return err
+		if err := assets.Stage(k.K0sVars.BinDir, "kubelet.exe"); err != nil {
+			return err
+		}
 	}
 
 	if runtime.GOOS == "linux" {
@@ -126,12 +127,11 @@ func (k *Kubelet) Start(ctx context.Context) error {
 
 	logrus.Info("Starting kubelet")
 	args := stringmap.StringMap{
-		"--root-dir":        k.K0sVars.KubeletRootDir,
-		"--config":          k.configPath,
-		"--kubeconfig":      k.Kubeconfig,
-		"--v":               k.LogLevel,
-		"--runtime-cgroups": "/system.slice/containerd.service",
-		"--cert-dir":        filepath.Join(k.K0sVars.KubeletRootDir, "pki"),
+		"--root-dir":   k.K0sVars.KubeletRootDir,
+		"--config":     k.configPath,
+		"--kubeconfig": k.Kubeconfig,
+		"--v":          k.LogLevel,
+		"--cert-dir":   filepath.Join(k.K0sVars.KubeletRootDir, "pki"),
 	}
 
 	if len(k.Labels) > 0 {
@@ -142,7 +142,7 @@ func (k *Kubelet) Start(ctx context.Context) error {
 		// Kubelet uses a DNS lookup of the node name to figure out the node IP,
 		// but will only pick one for a single family. Do something similar as
 		// kubelet, but for both IPv4 and IPv6.
-		// https://github.com/kubernetes/kubernetes/blob/v1.33.1/pkg/kubelet/nodestatus/setters.go#L207-L235
+		// https://github.com/kubernetes/kubernetes/blob/v1.34.0-alpha.2/pkg/kubelet/nodestatus/setters.go#L207-L235
 		ipv4, ipv6, err := lookupNodeName(ctx, k.NodeName)
 		if err != nil {
 			logrus.WithError(err).Errorf("failed to lookup %q", k.NodeName)
@@ -154,7 +154,11 @@ func (k *Kubelet) Start(ctx context.Context) error {
 		}
 	}
 
-	if runtime.GOOS == "windows" {
+	switch runtime.GOOS {
+	case "linux":
+		args["--runtime-cgroups"] = "/system.slice/containerd.service"
+
+	case "windows":
 		args["--enforce-node-allocatable"] = ""
 		args["--hairpin-mode"] = "promiscuous-bridge"
 		args["--cert-dir"] = "C:\\var\\lib\\k0s\\kubelet_certs"

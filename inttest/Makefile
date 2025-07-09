@@ -87,8 +87,15 @@ check-customports-dynamicconfig: TEST_PACKAGE=customports
 
 check-kubeletcertrotate: TIMEOUT=15m
 
+check-cplb-ipvs-ipv6: export K0S_IPV6_ONLY=yes
+check-cplb-ipvs-ipv6: TEST_PACKAGE=cplb-ipvs
+
 check-cplb-userspace-extaddr: export K0S_USE_EXTERNAL_ADDRESS=yes
 check-cplb-userspace-extaddr: TEST_PACKAGE=cplb-userspace
+
+check-cplb-userspace-ipv6: export K0S_USE_EXTERNAL_ADDRESS=yes
+check-cplb-userspace-ipv6: export K0S_IPV6_ONLY=yes
+check-cplb-userspace-ipv6: TEST_PACKAGE=cplb-userspace
 
 check-dualstack-calico: export K0S_NETWORK=calico
 check-dualstack-calico: TEST_PACKAGE=dualstack
@@ -103,6 +110,12 @@ check-dualstack-kuberouter: TEST_PACKAGE=dualstack
 check-dualstack-kuberouter-dynamicconfig: export K0S_ENABLE_DYNAMIC_CONFIG=true
 check-dualstack-kuberouter-dynamicconfig: export K0S_NETWORK=kuberouter
 check-dualstack-kuberouter-dynamicconfig: TEST_PACKAGE=dualstack
+
+check-ipv6-calico: export K0S_NETWORK=calico
+check-ipv6-calico: TEST_PACKAGE=ipv6
+
+check-ipv6-kuberouter: export K0S_NETWORK=kuberouter
+check-ipv6-kuberouter: TEST_PACKAGE=ipv6
 
 check-ap-updater: .update-server.stamp
 check-ap-updater-periodic: .update-server.stamp
@@ -129,6 +142,9 @@ check-metricsscraper-singlenode: export K0S_SINGLENODE=1
 check-metricsscraper-singlenode: TEST_PACKAGE=metricsscraper
 
 check-nllb: TIMEOUT=15m
+check-nllb-ipv6: TIMEOUT=15m
+check-nllb-ipv6: export K0S_IPV6_ONLY=yes
+check-nllb-ipv6: TEST_PACKAGE=nllb
 
 .PHONY: $(smoketests)
 include Makefile.variables

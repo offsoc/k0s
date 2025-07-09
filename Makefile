@@ -250,7 +250,12 @@ airgap-image-bundle-linux-riscv64.tar: k0s airgap-images.txt
 	./k0s airgap bundle-artifacts -v --platform='$(TARGET_PLATFORM)' -o '$@' <airgap-images.txt
 
 .PHONY: $(smoketests)
-check-airgap check-ap-airgap: airgap-image-bundle-linux-$(HOST_ARCH).tar
+check-airgap \
+check-ap-airgap \
+check-ipv6-calico \
+check-ipv6-kuberouter \
+check-cplb-ipvs-ipv6 \
+check-cplb-userspace-ipv6: airgap-image-bundle-linux-$(HOST_ARCH).tar
 $(smoketests): k0s
 	$(MAKE) -C inttest K0S_IMAGES_BUNDLE='$(CURDIR)/airgap-image-bundle-linux-$(HOST_ARCH).tar' $@
 
@@ -302,7 +307,8 @@ docs-serve-dev: DOCS_DEV_PORT ?= 8000
 docs-serve-dev:
 	$(MAKE) -C docs .docker-image.serve-dev.stamp
 	$(DOCKER) run --rm \
-	  -e KUBERNETES_VERSION='$(kubernetes_version)' \
+	  -e PYTHONPATH=/k0s/docs/mkdocs_modules \
+	  -e K0S_VERSION=$(VERSION) \
 	  -v "$(CURDIR):/k0s:ro" \
 	  -p '$(DOCS_DEV_PORT):8000' \
 	  k0sdocs.docker-image.serve-dev

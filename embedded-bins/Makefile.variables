@@ -1,7 +1,7 @@
-alpine_version = 3.21
-alpine_patch_version = $(alpine_version).3
+alpine_patch_version = 3.22.0
+alpine_version = $(word 1,$(subst ., ,$(alpine_patch_version))).$(word 2,$(subst ., ,$(alpine_patch_version)))
 golang_buildimage=docker.io/library/golang:$(go_version)-alpine$(alpine_version)
-go_version = 1.24.4
+go_version = 1.24.5
 
 runc_version = 1.2.6
 runc_buildimage = $(golang_buildimage)
@@ -22,7 +22,7 @@ containerd_build_shim_go_cgo_enabled = 0
 #containerd_build_go_ldflags =
 containerd_build_go_ldflags_extra = "-w -s -extldflags=-static"
 
-kubernetes_version = 1.33.1
+kubernetes_version = 1.34.0-alpha.2
 helm_version = 3.17.2
 kubernetes_buildimage = $(golang_buildimage)
 kubernetes_build_go_tags = "providerless"
@@ -43,7 +43,7 @@ kine_build_go_cgo_cflags = -DSQLITE_ENABLE_DBSTAT_VTAB=1 -DSQLITE_USE_ALLOCA=1
 kine_build_go_ldflags = "-w -s"
 kine_build_go_ldflags_extra = "-extldflags=-static"
 
-etcd_version = 3.5.21
+etcd_version = 3.6.1
 etcd_buildimage = $(golang_buildimage)
 #etcd_build_go_tags =
 etcd_build_go_cgo_enabled = 0

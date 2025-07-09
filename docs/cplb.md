@@ -105,6 +105,40 @@ When using unicast, k0st does not attempt to detect `unicastSourceIP` and it mus
 
 [RFC 3768]: https://datatracker.ietf.org/doc/html/rfc3768#section-5.2.2
 
+#### IPv6 VIPs egress routing preference
+
+In IPv6 there aren't primary addresses, instead the routing preference is determined by the operating system using
+either IP labels or IP rules. K0s Virtual Addresses uses [RFC 6724] IP labels. By default, k0s sets the label to
+10000 so that it still uses the main IP address as a source of egress connections.
+
+This value may be replaced per vrrPInstance:
+
+```yaml
+spec:
+  network:
+    controlPlaneLoadBalancing:
+      enabled: true
+      type: Keepalived
+      keepalived:
+        vrrpInstances:
+        - virtualIPs: ["<VIP address>/<netmask>"] # for instance ["2001:db8:2::1/64"]
+          authPass: "<my password>"
+          addressLabel: 30000
+```
+
+The label value can be verified using iproute2:
+
+```shell
+$ ip addrlabel | grep 2001:db8:2::1
+prefix 2001:db8:2::1/128 label 30000
+```
+
+The prefix always uses netmask 128.
+
+K0s doesn't attempt to modify labels that do not belong to the VIP.
+
+[RFC 6724]: https://datatracker.ietf.org/doc/html/rfc6724
+
 ## Load Balancing
 
 Currently k0s allows to chose one of two load balancing mechanism:
@@ -212,7 +246,7 @@ spec:
     k0sBinaryPath: /opt/k0s
     uploadBinary: true
   k0s:
-    version: v{{{ extra.k8s_version }}}+k0s.0
+    version: {{{ k0s_version }}}
     config:
       spec:
         network:
@@ -333,7 +367,7 @@ INFO [ssh] worker-1.k0s.lab:22: waiting for node to become ready
 INFO ==> Running phase: Release exclusive host lock
 INFO ==> Running phase: Disconnect from hosts
 INFO ==> Finished in 2m20s
-INFO k0s cluster version v{{{ extra.k8s_version }}}+k0s.0  is now installed
+INFO k0s cluster version {{{ k0s_version }}} is now installed
 INFO Tip: To access the cluster you can now fetch the admin kubeconfig using:
 INFO      k0sctl kubeconfig
 ```
@@ -351,9 +385,9 @@ All three worker nodes are ready:
 ```console
 $ kubectl get nodes
 NAME                   STATUS   ROLES           AGE     VERSION
-worker-0.k0s.lab       Ready    <none>          8m51s   v{{{ extra.k8s_version }}}+k0s
-worker-1.k0s.lab       Ready    <none>          8m51s   v{{{ extra.k8s_version }}}+k0s
-worker-2.k0s.lab       Ready    <none>          8m51s   v{{{ extra.k8s_version }}}+k0s
+worker-0.k0s.lab       Ready    <none>          8m51s   {{{ k8s_version }}}+k0s
+worker-1.k0s.lab       Ready    <none>          8m51s   {{{ k8s_version }}}+k0s
+worker-2.k0s.lab       Ready    <none>          8m51s   {{{ k8s_version }}}+k0s
 ```
 
 Only one controller has the VIP:
@@ -394,15 +428,16 @@ And the cluster will be working normally:
 ```console
 $ kubectl get nodes
 NAME                   STATUS   ROLES           AGE     VERSION
-worker-0.k0s.lab       Ready    <none>          8m51s   v{{{ extra.k8s_version }}}+k0s
-worker-1.k0s.lab       Ready    <none>          8m51s   v{{{ extra.k8s_version }}}+k0s
-worker-2.k0s.lab       Ready    <none>          8m51s   v{{{ extra.k8s_version }}}+k0s
+worker-0.k0s.lab       Ready    <none>          8m51s   {{{ k8s_version }}}+k0s
+worker-1.k0s.lab       Ready    <none>          8m51s   {{{ k8s_version }}}+k0s
+worker-2.k0s.lab       Ready    <none>          8m51s   {{{ k8s_version }}}+k0s
 ```
 
 ## Troubleshooting
 
-Although Virtual IPs and Load Balancing work together and are closely related, these are two independent
-processes and must be troubleshooting as two independent features.
+Although Virtual IP addresses and load balancing work together and are closely
+related, these are two independent processes and must be troubleshooting as two
+independent features.
 
 ### Troubleshooting Virtual IPs
 
@@ -428,9 +463,9 @@ controller1:/# ip a s eth0
        valid_lft forever preferred_lft forever
 ```
 
-If the virtualServers feature is used, there must be a dummy interface on the node
-called `dummyvip0` which has the VIP but with `32` netmask. This isn't the VIP and
-has to be there even if the VIP is held by another node.
+If the `virtualServers` feature is used, there must be a dummy interface on the
+node called `dummyvip0` which has the VIP, but with a `/32` bits network mask.
+This isn't the VIP and has to be there even if the VIP is held by another node.
 
 ```console
 controller0:/# ip a s dummyvip0 | grep 172.17.0.102
@@ -453,15 +488,15 @@ time="2024-11-19 12:56:11" level=info msg="Tue Nov 19 12:56:11 2024: Starting Ke
 [...]
 ```
 
-The keepalived configuration is stored in a file called keepalived.conf in the k0s run
-directory, by default `/run/k0s/keepalived.conf`, in this file there should be a
-`vrrp_instance`section for each `vrrpInstance`.
+The Keepalived configuration is stored in a file called `keepalived.conf` in the
+k0s run directory, by default `/run/k0s/keepalived.conf`, in this file there
+should be a `vrrp_instance` section for each `vrrpInstance`.
 
 Finally, k0s should have two keepalived processes running.
 
 ### Troubleshooting the Load Balancer's Endpoint List
 
-Both the userspace reverse proxy load balancer and Keepalived's virtual servers need an endpoint list to
+Both the user space reverse proxy load balancer and Keepalived's virtual servers need an endpoint list to
 do the load balancing. They share a component called `cplb-reconciler` which responsible for setting the
 load balancer's endpoint list. This component monitors constantly the endpoint `kubernetes` in the
 `default`namespace:
@@ -482,9 +517,9 @@ time="2024-11-20 20:29:55" level=info msg="Updated the list of IPs: [172.17.0.6 
 time="2024-11-20 20:29:59" level=info msg="Updated the list of IPs: [172.17.0.6 172.17.0.7 172.17.0.8]" component=cplb-reconciler
 ```
 
-### Troubleshooting the Userspace Reverse Proxy Load Balancer
+### Troubleshooting the user space reverse proxy load balancer
 
-The userspace reverse proxy load balancer runs in the k0s process. It listens a separate socket, by default on port 6444:
+The user space reverse proxy load balancer runs in the k0s process. It listens a separate socket, by default on port 6444:
 
 ```console
 controller0:/# netstat -tlpn | grep 6444
@@ -497,12 +532,14 @@ Then the requests to the VIP on the apiserver port are forwarded to this socket 
 -A PREROUTING -d <VIP>/32 -p tcp -m tcp --dport <apiserver port> -j REDIRECT --to-ports <userspace proxy port>
 ```
 
-A real life example of a cluster using using the VIP `17.177.0.102` looks like:
+A real life example of a cluster using the VIP `17.177.0.102` looks like:
 
 ```console
 controller0:/# /var/lib/k0s/bin/iptables-save | grep 6444
 -A PREROUTING -d 172.17.0.102/32 -p tcp -m tcp --dport 6443 -j REDIRECT --to-ports 6444
 ```
+
+Keep in mind that clusters using IPv6 as a primary address family, should use ip6tables or ip6tables-save.
 
 It the load balancer is not load balancing for whatever reason, you can establish connections to it directly. A good way to see if it's actually load balancing is checking the serving certificate:
 
@@ -526,13 +563,13 @@ be able to reach the port 6443 on any address and the port 6444 on any address e
 
 ### Troubleshooting Keepalived Virtual Servers
 
-You can verify the keepalived's logs and configuration file using the steps described in the section
+You can verify the Keepalived logs and configuration file using the steps described in the section
 [troubleshooting virtual IPs](#troubleshooting-virtual-ips) above.
 
 When virtual servers are enabled K0s generates two additional files:
 
 * `keepalived-virtualservers-generated.conf`: This file contains the list of control plane nodes that should be balanced to.
-* `keepalived-virtualservers-consumed.conf`: This is a symlink which points to `keepalived-virtualservers-generated.conf`
+* `keepalived-virtualservers-consumed.conf`: This is a symbolic link which points to `keepalived-virtualservers-generated.conf`
 if the Keepalived VRRP instance's current state is `master` or to `/dev/null` if it's `backup`. This file is only generated if
 there is exactly one VRRP instance.
 

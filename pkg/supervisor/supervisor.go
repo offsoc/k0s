@@ -266,10 +266,11 @@ func (s *Supervisor) maybeKillPidFile() error {
 		return fmt.Errorf("failed to parse PID file %s: %w", s.PidFile, err)
 	}
 
-	ph, err := newProcHandle(p)
+	ph, err := openPID(p)
 	if err != nil {
 		return fmt.Errorf("cannot interact with PID %d from PID file %s: %w", p, s.PidFile, err)
 	}
+	defer ph.Close()
 
 	if err := s.killProcess(ph); err != nil {
 		return fmt.Errorf("failed to kill PID %d from PID file %s: %w", p, s.PidFile, err)
@@ -281,52 +282,48 @@ func (s *Supervisor) maybeKillPidFile() error {
 const exitCheckInterval = 200 * time.Millisecond
 
 // Tries to terminate a process gracefully. If it's still running after
-// s.TimeoutStop, the process is forcibly terminated.
+// s.TimeoutStop, the process is killed.
 func (s *Supervisor) killProcess(ph procHandle) error {
-	// Kill the process pid
-	deadlineTicker := time.NewTicker(s.TimeoutStop)
-	defer deadlineTicker.Stop()
+	if shouldKill, err := s.shouldKillProcess(ph); err != nil || !shouldKill {
+		return err
+	}
+
+	if err := ph.requestGracefulShutdown(); errors.Is(err, syscall.ESRCH) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("failed to request graceful termination: %w", err)
+	}
+
+	if terminate, err := s.waitForTermination(ph); err != nil || !terminate {
+		return err
+	}
+
+	if err := ph.kill(); errors.Is(err, syscall.ESRCH) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("failed to kill: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Supervisor) waitForTermination(ph procHandle) (bool, error) {
+	deadlineTimer := time.NewTimer(s.TimeoutStop)
+	defer deadlineTimer.Stop()
 	checkTicker := time.NewTicker(exitCheckInterval)
 	defer checkTicker.Stop()
 
-Loop:
 	for {
 		select {
 		case <-checkTicker.C:
-			shouldKill, err := s.shouldKillProcess(ph)
-			if err != nil {
-				return err
-			}
-			if !shouldKill {
-				return nil
+			if shouldKill, err := s.shouldKillProcess(ph); err != nil || !shouldKill {
+				return false, nil
 			}
 
-			err = ph.terminateGracefully()
-			if errors.Is(err, syscall.ESRCH) {
-				return nil
-			} else if err != nil {
-				return fmt.Errorf("failed to terminate gracefully: %w", err)
-			}
-		case <-deadlineTicker.C:
-			break Loop
+		case <-deadlineTimer.C:
+			return true, nil
 		}
 	}
-
-	shouldKill, err := s.shouldKillProcess(ph)
-	if err != nil {
-		return err
-	}
-	if !shouldKill {
-		return nil
-	}
-
-	err = ph.terminateForcibly()
-	if errors.Is(err, syscall.ESRCH) {
-		return nil
-	} else if err != nil {
-		return fmt.Errorf("failed to terminate forcibly: %w", err)
-	}
-	return nil
 }
 
 func (s *Supervisor) shouldKillProcess(ph procHandle) (bool, error) {
