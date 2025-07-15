@@ -53,6 +53,17 @@
       ]
     },
     {
+      "description": "Bump Envoy for release-1.33",
+      "enabled": true,
+      "matchBaseBranches": [
+        "release-1.33"
+      ],
+      "matchDepNames": [
+        "quay.io/k0sproject/envoy-distroless"
+      ],
+      "allowedVersions": "<=1.32"
+    },
+    {
       "description": "Bump Go for release-1.32",
       "enabled": true,
       "matchBaseBranches": [
@@ -62,6 +73,17 @@
         "go"
       ],
       "allowedVersions": "<=1.23"
+    },
+    {
+      "description": "Bump Envoy for release-1.32",
+      "enabled": true,
+      "matchBaseBranches": [
+        "release-1.32"
+      ],
+      "matchDepNames": [
+        "quay.io/k0sproject/envoy-distroless"
+      ],
+      "allowedVersions": "<=1.31"
     }
   ],
   "customManagers": [
@@ -92,6 +114,27 @@
       "depNameTemplate": "go",
       "datasourceTemplate": "golang-version",
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Update container image tags in non-Dockerfiles",
+      "managerFilePatterns": [
+        "**/*.go",
+        "**/*.md",
+        "**/*.patch",
+        "**/*.py",
+        "**/*.sh",
+        "**/*.tf",
+        "**/*.tftpl",
+        "**/*.txt",
+        "**/*.yaml",
+        "**/*.yml"
+      ],
+      "matchStrings": [
+        "\\b(?<depName>(docker|quay)\\.io/[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*)(:|.*\n.*= \")v?(?<currentValue>[a-z0-9_][\\w.-]{0,127})"
+      ],
+      "datasourceTemplate": "docker",
+      "extractVersionTemplate": "^v?(?<version>[\\w][\\w.-]{0,127})"
     },
     {
       "customType": "regex",

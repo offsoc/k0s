@@ -47,19 +47,19 @@ require (
 	github.com/vishvananda/netlink v1.3.1
 	github.com/vmware-tanzu/sonobuoy v0.57.2
 	github.com/zcalusic/sysinfo v1.1.3
-	go.etcd.io/etcd/api/v3 v3.6.1
-	go.etcd.io/etcd/client/pkg/v3 v3.6.1
-	go.etcd.io/etcd/client/v3 v3.6.1
-	go.etcd.io/etcd/etcdutl/v3 v3.6.1
+	go.etcd.io/etcd/api/v3 v3.6.2
+	go.etcd.io/etcd/client/pkg/v3 v3.6.2
+	go.etcd.io/etcd/client/v3 v3.6.2
+	go.etcd.io/etcd/etcdutl/v3 v3.6.2
 	go.uber.org/zap v1.27.0
-	golang.org/x/crypto v0.39.0
-	golang.org/x/mod v0.25.0
-	golang.org/x/sync v0.15.0
-	golang.org/x/sys v0.33.0
-	golang.org/x/text v0.26.0
-	golang.org/x/tools v0.34.0
+	golang.org/x/crypto v0.40.0
+	golang.org/x/mod v0.26.0
+	golang.org/x/sync v0.16.0
+	golang.org/x/sys v0.34.0
+	golang.org/x/text v0.27.0
+	golang.org/x/tools v0.35.0
 	google.golang.org/grpc v1.73.0
-	helm.sh/helm/v3 v3.18.3
+	helm.sh/helm/v3 v3.18.4
 	oras.land/oras-go/v2 v2.6.0
 )
 
@@ -235,9 +235,9 @@ require (
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
 	github.com/zmap/zcrypto v0.0.0-20210511125630-18f1e0152cfc // indirect
 	github.com/zmap/zlint/v3 v3.1.0 // indirect
-	go.etcd.io/bbolt v1.4.0 // indirect
-	go.etcd.io/etcd/pkg/v3 v3.6.1 // indirect
-	go.etcd.io/etcd/server/v3 v3.6.1 // indirect
+	go.etcd.io/bbolt v1.4.2 // indirect
+	go.etcd.io/etcd/pkg/v3 v3.6.2 // indirect
+	go.etcd.io/etcd/server/v3 v3.6.2 // indirect
 	go.etcd.io/raft/v3 v3.6.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
@@ -254,9 +254,9 @@ require (
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.3 // indirect
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f // indirect
-	golang.org/x/net v0.41.0 // indirect
+	golang.org/x/net v0.42.0 // indirect
 	golang.org/x/oauth2 v0.28.0 // indirect
-	golang.org/x/term v0.32.0 // indirect
+	golang.org/x/term v0.33.0 // indirect
 	golang.org/x/time v0.9.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect

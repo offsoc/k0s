@@ -61,7 +61,6 @@ import (
 	"github.com/k0sproject/k0s/pkg/telemetry"
 	"github.com/k0sproject/k0s/pkg/token"
 
-	"k8s.io/apimachinery/pkg/fields"
 	apitypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/rest"
 	"k8s.io/kubernetes/cmd/kubeadm/app/constants"
@@ -389,11 +388,7 @@ func (c *command) start(ctx context.Context, flags *config.ControllerOptions, de
 		if err != nil {
 			return err
 		}
-		etcdCRDSaver, err := controller.NewManifestsSaver("etcd-member", c.K0sVars.DataDir)
-		if err != nil {
-			return fmt.Errorf("failed to initialize etcd-member manifests saver: %w", err)
-		}
-		clusterComponents.Add(ctx, controller.NewCRD(etcdCRDSaver, "etcd"))
+		clusterComponents.Add(ctx, controller.NewCRD(c.K0sVars.ManifestsDir, "etcd", controller.WithStackName("etcd-member")))
 		nodeComponents.Add(ctx, etcdReconciler)
 	}
 
@@ -459,11 +454,7 @@ func (c *command) start(ctx context.Context, flags *config.ControllerOptions, de
 	))
 
 	if !slices.Contains(flags.DisableComponents, constant.HelmComponentName) {
-		helmSaver, err := controller.NewManifestsSaver("helm", c.K0sVars.DataDir)
-		if err != nil {
-			return fmt.Errorf("failed to initialize helm manifests saver: %w", err)
-		}
-		clusterComponents.Add(ctx, controller.NewCRD(helmSaver, "helm"))
+		clusterComponents.Add(ctx, controller.NewCRD(c.K0sVars.ManifestsDir, "helm"))
 		clusterComponents.Add(ctx, controller.NewExtensionsController(
 			c.K0sVars,
 			adminClientFactory,
@@ -472,13 +463,7 @@ func (c *command) start(ctx context.Context, flags *config.ControllerOptions, de
 	}
 
 	if !slices.Contains(flags.DisableComponents, constant.AutopilotComponentName) {
-		logrus.Debug("starting manifest saver")
-		manifestsSaver, err := controller.NewManifestsSaver("autopilot", c.K0sVars.DataDir)
-		if err != nil {
-			logrus.Warnf("failed to initialize reconcilers manifests saver: %s", err.Error())
-			return err
-		}
-		clusterComponents.Add(ctx, controller.NewCRD(manifestsSaver, "autopilot"))
+		clusterComponents.Add(ctx, controller.NewCRD(c.K0sVars.ManifestsDir, "autopilot"))
 	}
 
 	if enableK0sEndpointReconciler {
@@ -505,28 +490,11 @@ func (c *command) start(ctx context.Context, flags *config.ControllerOptions, de
 
 	if !slices.Contains(flags.DisableComponents, constant.NetworkProviderComponentName) {
 		logrus.Infof("Creating network reconcilers")
-
-		calicoSaver, err := controller.NewManifestsSaver("calico", c.K0sVars.DataDir)
-		if err != nil {
-			return fmt.Errorf("failed to create calico manifests saver: %w", err)
-		}
-		calicoInitSaver, err := controller.NewManifestsSaver("calico_init", c.K0sVars.DataDir)
-		if err != nil {
-			return fmt.Errorf("failed to create calico_init manifests saver: %w", err)
-		}
-		windowsStackSaver, err := controller.NewManifestsSaver("windows", c.K0sVars.DataDir)
-		if err != nil {
-			return fmt.Errorf("failed to create windows manifests saver: %w", err)
-		}
-		clusterComponents.Add(ctx, controller.NewCalico(c.K0sVars, calicoInitSaver, calicoSaver))
+		clusterComponents.Add(ctx, controller.NewCalico(c.K0sVars))
 		if !slices.Contains(flags.DisableComponents, constant.WindowsNodeComponentName) {
-			clusterComponents.Add(ctx, controller.NewWindowsStackComponent(c.K0sVars, adminClientFactory, windowsStackSaver))
+			clusterComponents.Add(ctx, controller.NewWindowsStackComponent(c.K0sVars, adminClientFactory))
 		}
-		kubeRouterSaver, err := controller.NewManifestsSaver("kuberouter", c.K0sVars.DataDir)
-		if err != nil {
-			return fmt.Errorf("failed to create kuberouter manifests saver: %w", err)
-		}
-		clusterComponents.Add(ctx, controller.NewKubeRouter(c.K0sVars, kubeRouterSaver))
+		clusterComponents.Add(ctx, controller.NewKubeRouter(c.K0sVars))
 	}
 
 	if !slices.Contains(flags.DisableComponents, constant.MetricsServerComponentName) {
@@ -534,11 +502,7 @@ func (c *command) start(ctx context.Context, flags *config.ControllerOptions, de
 	}
 
 	if flags.EnableMetricsScraper {
-		metricsSaver, err := controller.NewManifestsSaver("metrics", c.K0sVars.DataDir)
-		if err != nil {
-			return fmt.Errorf("failed to create metrics manifests saver: %w", err)
-		}
-		metrics, err := controller.NewMetrics(c.K0sVars, metricsSaver, adminClientFactory, nodeConfig.Spec.Storage.Type)
+		metrics, err := controller.NewMetrics(c.K0sVars, adminClientFactory, nodeConfig.Spec.Storage.Type)
 		if err != nil {
 			return fmt.Errorf("failed to create metrics reconciler: %w", err)
 		}
@@ -668,7 +632,7 @@ func (c *command) startWorker(ctx context.Context, nodeName apitypes.NodeName, k
 	// opts to start the worker. Needs to be a copy so the original token and
 	// possibly other args won't get messed up.
 	wc := workercmd.Command(*(*config.CLIOptions)(c))
-	wc.Labels = append(wc.Labels, fields.OneTermEqualSelector(constant.K0SNodeRoleLabel, "control-plane").String())
+	wc.Labels[constant.K0SNodeRoleLabel] = "control-plane"
 	if opts.Mode() == config.ControllerPlusWorkerMode && !opts.NoTaints {
 		wc.Taints = append(wc.Taints, constants.ControlPlaneTaint.ToString())
 	}

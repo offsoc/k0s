@@ -3,7 +3,7 @@ name: Renovate
 on:
   workflow_dispatch: # Allows manual triggering
   schedule:
-    - cron: '0 0 * * *' # Runs at 00:00 UTC every day
+    - cron: 23 */4 * * * # At minute 23 past every 4th hour.
 
 jobs:
   renovate:
@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Self-hosted Renovate
-        uses: renovatebot/github-action@v43.0.2
+        uses: renovatebot/github-action@v43.0.3
         with:
           configurationFile: renovate.json
           # Use the same token as the backport workflow. If this token is
