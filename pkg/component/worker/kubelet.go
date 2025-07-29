@@ -1,18 +1,5 @@
-/*
-Copyright 2020 k0s authors
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: 2020 k0s authors
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
@@ -143,7 +130,7 @@ func (k *Kubelet) Start(ctx context.Context) error {
 		// Kubelet uses a DNS lookup of the node name to figure out the node IP,
 		// but will only pick one for a single family. Do something similar as
 		// kubelet, but for both IPv4 and IPv6.
-		// https://github.com/kubernetes/kubernetes/blob/v1.34.0-alpha.2/pkg/kubelet/nodestatus/setters.go#L207-L235
+		// https://github.com/kubernetes/kubernetes/blob/v1.34.0-beta.0/pkg/kubelet/nodestatus/setters.go#L150-L178
 		ipv4, ipv6, err := lookupNodeName(ctx, k.NodeName)
 		if err != nil {
 			logrus.WithError(err).Errorf("failed to lookup %q", k.NodeName)

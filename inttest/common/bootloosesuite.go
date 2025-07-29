@@ -1,18 +1,5 @@
-/*
-Copyright 2020 k0s authors
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: 2020 k0s authors
+// SPDX-License-Identifier: Apache-2.0
 
 package common
 
@@ -1548,17 +1535,25 @@ func (s *BootlooseSuite) maybeAddBinPath(volumes []config.Volume) ([]config.Volu
 		return volumes, nil
 	}
 
-	binPath := os.Getenv("K0S_PATH")
-	if binPath == "" {
-		return nil, errors.New("failed to locate k0s binary: K0S_PATH environment variable not set")
+	exePathErrMsg := "failed to locate k0s executable"
+	exePath, binPathSet := os.LookupEnv("K0S_PATH")
+	if !binPathSet {
+		exePathErrMsg += ": K0S_PATH environment variable not set"
+		// Assume that inttests are called from the inttest/<test-name> folder,
+		// hence the k0s executable is supposedly located at ../../k0s.
+		var err error
+		exePath, err = filepath.Abs(filepath.Join("..", "..", "k0s"))
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", exePathErrMsg, err)
+		}
 	}
 
-	fileInfo, err := os.Stat(binPath)
+	fileInfo, err := os.Stat(exePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to locate k0s binary %s: %w", binPath, err)
+		return nil, fmt.Errorf("%s: %w", exePathErrMsg, err)
 	}
 	if fileInfo.IsDir() {
-		return nil, fmt.Errorf("failed to locate k0s binary %s: is a directory", binPath)
+		return nil, fmt.Errorf("%s: is a directory: %q", exePathErrMsg, exePath)
 	}
 
 	updateFromBinPath := os.Getenv("K0S_UPDATE_FROM_PATH")
@@ -1570,14 +1565,14 @@ func (s *BootlooseSuite) maybeAddBinPath(volumes []config.Volume) ([]config.Volu
 			ReadOnly:    true,
 		}, config.Volume{
 			Type:        "bind",
-			Source:      binPath,
+			Source:      exePath,
 			Destination: k0sNewBindMountFullPath,
 			ReadOnly:    true,
 		})
 	} else {
 		volumes = append(volumes, config.Volume{
 			Type:        "bind",
-			Source:      binPath,
+			Source:      exePath,
 			Destination: k0sBindMountFullPath,
 			ReadOnly:    true,
 		})

@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: 2024 k0s authors
+SPDX-License-Identifier: CC-BY-SA-4.0
+-->
+
 # Control plane load balancing
 
 For clusters that don't have an [externally managed load balancer](high-availability.md#load-balancer) for the k0s
@@ -484,7 +489,7 @@ can be filtered with `component=keepalived`.
 controller0:/# journalctl -u k0scontroller | grep component=keepalived
 time="2024-11-19 12:56:11" level=info msg="Starting to supervise" component=keepalived
 time="2024-11-19 12:56:11" level=info msg="Started successfully, go nuts pid 409" component=keepalived
-time="2024-11-19 12:56:11" level=info msg="Tue Nov 19 12:56:11 2024: Starting Keepalived v2.2.8 (04/04,2023), git commit v2.2.7-154-g292b299e+" component=keepalived stream=stderr
+time="2024-11-19 12:56:11" level=info msg="Tue Nov 19 12:56:11 2024: Starting Keepalived v{{{ build_var('keepalived_version') }}}" component=keepalived stream=stderr
 [...]
 ```
 

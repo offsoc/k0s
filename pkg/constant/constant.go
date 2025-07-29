@@ -1,18 +1,5 @@
-/*
-Copyright 2020 k0s authors
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: 2020 k0s authors
+// SPDX-License-Identifier: Apache-2.0
 
 package constant
 
@@ -78,7 +65,7 @@ const (
 	/* Image Constants */
 
 	KonnectivityImage                  = "quay.io/k0sproject/apiserver-network-proxy-agent"
-	KonnectivityImageVersion           = "v0.32.0"
+	KonnectivityImageVersion           = "v0.33.0"
 	PushGatewayImage                   = "quay.io/k0sproject/pushgateway-ttl"
 	PushGatewayImageVersion            = "1.4.0-k0s.0"
 	MetricsImage                       = "quay.io/k0sproject/metrics-server"
@@ -86,11 +73,11 @@ const (
 	KubePauseContainerImage            = "quay.io/k0sproject/pause"
 	KubePauseContainerImageVersion     = "3.10.1"
 	KubeProxyImage                     = "quay.io/k0sproject/kube-proxy"
-	KubeProxyImageVersion              = "v1.34.0-alpha.2"
+	KubeProxyImageVersion              = "v1.34.0-beta.0"
 	CoreDNSImage                       = "quay.io/k0sproject/coredns"
 	CoreDNSImageVersion                = "1.12.2"
 	EnvoyProxyImage                    = "quay.io/k0sproject/envoy-distroless"
-	EnvoyProxyImageVersion             = "v1.34.2"
+	EnvoyProxyImageVersion             = "v1.34.3"
 	CalicoImage                        = "quay.io/k0sproject/calico-cni"
 	CalicoComponentImagesVersion       = "v3.29.4-0"
 	CalicoNodeImage                    = "quay.io/k0sproject/calico-node"
@@ -99,8 +86,6 @@ const (
 	KubeRouterCNIImageVersion          = "v2.5.0-iptables1.8.11-0"
 	KubeRouterCNIInstallerImage        = "quay.io/k0sproject/cni-node"
 	KubeRouterCNIInstallerImageVersion = "1.7.1-k0s.0"
-	OpenEBSRepository                  = "https://openebs.github.io/charts"
-	OpenEBSVersion                     = "3.3.0"
 
 	/* Controller component names */
 

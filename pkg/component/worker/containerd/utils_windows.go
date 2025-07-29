@@ -1,30 +1,30 @@
-/*
-Copyright 2023 k0s authors
-
-Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-	http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: 2023 k0s authors
+// SPDX-License-Identifier: Apache-2.0
 
 package containerd
 
 import (
+	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 
 	"github.com/Microsoft/hcsshim"
 	"github.com/avast/retry-go"
 	"github.com/sirupsen/logrus"
 )
+
+func Address(_ string) string {
+	return `\\.\pipe\containerd-containerd`
+}
+
+func Endpoint(runDir string) *url.URL {
+	return &url.URL{
+		Scheme: "npipe",
+		Path:   filepath.ToSlash(Address(runDir)),
+	}
+}
 
 // PowerShell struct
 type PowerShell struct {

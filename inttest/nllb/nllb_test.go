@@ -1,18 +1,5 @@
-/*
-Copyright 2022 k0s authors
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: 2022 k0s authors
+// SPDX-License-Identifier: Apache-2.0
 
 package nllb
 
@@ -22,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -100,7 +88,7 @@ func (s *suite) TestNodeLocalLoadBalancing() {
 
 		if s.isIPv6Only {
 			s.T().Log("Setting up IPv6 DNS for workers")
-			s.setUPIPv6DNS()
+			common.ConfigureIPv6ResolvConf(&s.BootlooseSuite)
 		}
 
 		s.T().Log("Starting workers and waiting for cluster to become ready")
@@ -336,27 +324,17 @@ func (s *suite) checkClusterReadiness(ctx context.Context, clients *kubernetes.C
 	return eg.Wait()
 }
 
-func (s *suite) setUPIPv6DNS() {
-	// When docker doesn't have a valid IPv6 DNS server, it will write 127.0.0.11 which creates a DNS loop.
-	// Sice github actions don't have a valid IPv6 DNS server, we need to overwrite it with a valid one.
-	ipv6ResolvConf := `
-nameserver 2606:4700:4700::1111
-nameserver 2001:4860:4860::8888
-`
-	for i := range s.WorkerCount {
-		s.PutFile(s.WorkerNode(i), "/etc/resolv.conf", ipv6ResolvConf)
-	}
-}
-
 func TestNodeLocalLoadBalancingSuite(t *testing.T) {
 	s := suite{
-		common.BootlooseSuite{
+		BootlooseSuite: common.BootlooseSuite{
 			ControllerCount: 3,
 			WorkerCount:     2,
 		},
-		os.Getenv("K0S_IPV6_ONLY") == "yes",
 	}
-	if s.isIPv6Only {
+
+	if strings.Contains(os.Getenv("K0S_INTTEST_TARGET"), "ipv6") {
+		t.Log("Configuring IPv6 only networking")
+		s.isIPv6Only = true
 		s.Networks = []string{"bridge-ipv6"}
 		s.AirgapImageBundleMountPoints = []string{"/var/lib/k0s/images/bundle-ipv6.tar"}
 	}

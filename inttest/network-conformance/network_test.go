@@ -1,18 +1,5 @@
-/*
-Copyright 2022 k0s authors
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: 2022 k0s authors
+// SPDX-License-Identifier: Apache-2.0
 
 package network
 
@@ -20,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -32,30 +20,14 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const (
-	defaultCNI       = "kuberouter"
-	defaultProxyMode = "iptables"
-)
-
 type networkSuite struct {
 	common.BootlooseSuite
+	cni       string
+	proxyMode string
 }
 
 func (s *networkSuite) TestK0sGetsUp() {
-	// Which cni to test: kuberouter, calico. Default: kuberouter
-	cni := os.Getenv("K0S_NETWORK_CONFORMANCE_CNI")
-	if cni == "" {
-		cni = defaultCNI
-	}
-	// Which kube-proxy mode to test: iptables, ipvs, userspace, nft. Default: iptables
-	proxyMode := os.Getenv("K0S_NETWORK_CONFORMANCE_PROXY_MODE")
-	if proxyMode == "" {
-		proxyMode = defaultProxyMode
-	}
-
-	s.T().Logf("Run conformance tests for CNI: %s", cni)
-
-	s.PutFile(s.ControllerNode(0), "/tmp/k0s.yaml", fmt.Sprintf(k0sConfig, cni, proxyMode))
+	s.PutFile(s.ControllerNode(0), "/tmp/k0s.yaml", fmt.Sprintf(k0sConfig, s.cni, s.proxyMode))
 	s.Require().NoError(s.InitController(0, "--config=/tmp/k0s.yaml", "--disable-components=metrics-server"))
 	s.Require().NoError(s.RunWorkers())
 
@@ -72,13 +44,13 @@ func (s *networkSuite) TestK0sGetsUp() {
 	s.NoError(err)
 
 	var daemonSetName string
-	switch cni {
+	switch s.cni {
 	case "calico":
 		daemonSetName = "calico-node"
 	case "kuberouter":
 		daemonSetName = "kube-router"
 	}
-	s.T().Log("waiting to see CNI pods ready")
+	s.T().Log("waiting to see CNI pods ready for", daemonSetName)
 	s.NoErrorf(common.WaitForDaemonSet(s.Context(), kc, daemonSetName, "kube-system"), "%s did not start", daemonSetName)
 
 	restConfig, err := s.GetKubeConfig("controller0")
@@ -154,7 +126,19 @@ func TestNetworkSuite(t *testing.T) {
 			ControllerCount: 1,
 			WorkerCount:     2,
 		},
+		"kuberouter",
+		"iptables",
 	}
+
+	target := os.Getenv("K0S_INTTEST_TARGET")
+	if strings.Contains(target, "calico") {
+		s.cni = "calico"
+	}
+	if strings.HasSuffix(target, "-nft") {
+		s.proxyMode = "nftables"
+	}
+
+	t.Logf("Testing %s using %s", s.cni, s.proxyMode)
 	suite.Run(t, &s)
 }
 

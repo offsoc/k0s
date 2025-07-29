@@ -141,7 +141,7 @@ $(controller_gen_targets): $(GO_ENV_REQUISITES) hack/tools/boilerplate.go.txt ha
 	rm -rf 'static/_crds/$(dir $(@:pkg/apis/%/.controller-gen.stamp=%))'
 	gendir="$$(mktemp -d .controller-gen.tmp.XXXXXX)" \
 	  && trap "rm -rf -- $$gendir" INT EXIT \
-	  && CGO_ENABLED=0 $(GO) run sigs.k8s.io/controller-tools/cmd/controller-gen@v$(controller-gen_version) \
+	  && CGO_ENABLED=0 $(GO) run sigs.k8s.io/controller-tools/cmd/controller-gen@v$(controller-tools_version) \
 	    paths="./$(dir $@)..." \
 	    object:headerFile=hack/tools/boilerplate.go.txt output:object:dir="$$gendir" \
 	    crd output:crd:dir='static/_crds/$(dir $(@:pkg/apis/%/.controller-gen.stamp=%))' \
@@ -230,7 +230,7 @@ lint-copyright:
 .PHONY: lint-go
 lint-go: GOLANGCI_LINT_FLAGS ?=
 lint-go: $(GO_ENV_REQUISITES) go.sum bindata
-	CGO_ENABLED=0 $(GO) install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v$(golangci-lint_version)
+	CGO_ENABLED=0 $(GO) install github.com/golangci/golangci-lint/v$(word 1,$(subst ., ,$(golangci-lint_version)))/cmd/golangci-lint@v$(golangci-lint_version)
 	CGO_CFLAGS='$(BUILD_CGO_CFLAGS)' $(GO_ENV) golangci-lint run --verbose --build-tags=$(subst $(space),$(comma),$(BUILD_GO_TAGS)) $(GOLANGCI_LINT_FLAGS) $(GO_LINT_DIRS)
 
 .PHONY: lint
@@ -249,10 +249,29 @@ airgap-image-bundle-linux-arm.tar \
 airgap-image-bundle-linux-riscv64.tar: k0s airgap-images.txt
 	./k0s airgap bundle-artifacts -v --platform='$(TARGET_PLATFORM)' -o '$@' <airgap-images.txt
 
+ipv6-image-bundle-linux-amd64.tar:   TARGET_PLATFORM := linux/amd64
+ipv6-image-bundle-linux-arm64.tar:   TARGET_PLATFORM := linux/arm64
+ipv6-image-bundle-linux-arm.tar:     TARGET_PLATFORM := linux/arm/v7
+ipv6-image-bundle-linux-riscv64.tar: TARGET_PLATFORM := linux/riscv64
+ipv6-image-bundle-linux-amd64.tar \
+ipv6-image-bundle-linux-arm64.tar \
+ipv6-image-bundle-linux-arm.tar \
+ipv6-image-bundle-linux-riscv64.tar: embedded-bins/Makefile.variables
+	printf '%s\n' \
+		docker.io/library/nginx:1.29.0-alpine \
+		docker.io/library/alpine:$(alpine_version) \
+		docker.io/curlimages/curl:8.15.0 \
+		| ./k0s airgap bundle-artifacts -v --platform='$(TARGET_PLATFORM)' -o '$@'
+
 .PHONY: $(smoketests)
 $(air_gapped_smoketests): airgap-image-bundle-linux-$(HOST_ARCH).tar
+check-calico-ipv6 check-kuberouter-ipv6: ipv6-image-bundle-linux-$(HOST_ARCH).tar
 $(smoketests): k0s
-	$(MAKE) -C inttest K0S_IMAGES_BUNDLE='$(CURDIR)/airgap-image-bundle-linux-$(HOST_ARCH).tar' $@
+# K0SMOTRON_IMAGES_BUNDLE is repurposed for the IPv6 test images
+	$(MAKE) -C inttest \
+		K0S_IMAGES_BUNDLE='$(CURDIR)/airgap-image-bundle-linux-$(HOST_ARCH).tar' \
+		K0SMOTRON_IMAGES_BUNDLE='$(CURDIR)/ipv6-image-bundle-linux-$(HOST_ARCH).tar' \
+		$@
 
 .PHONY: smoketests
 smoketests: $(smoketests)
@@ -325,7 +344,7 @@ sign-sbom: sbom/spdx.json
 	  -v "$(CURDIR):/k0s" \
 	  -v "$(CURDIR)/sbom:/out" \
 	  -e COSIGN_PASSWORD="$(COSIGN_PASSWORD)" \
-	  ghcr.io/sigstore/cosign/cosign:v2.4.2 \
+	  ghcr.io/sigstore/cosign/cosign:v$(cosign_version) \
 	  sign-blob \
 	  --key /k0s/cosign.key \
 	  --tlog-upload=false \
@@ -337,6 +356,6 @@ sign-pub-key:
 	  -v "$(CURDIR):/k0s" \
 	  -v "$(CURDIR)/sbom:/out" \
 	  -e COSIGN_PASSWORD="$(COSIGN_PASSWORD)" \
-	  ghcr.io/sigstore/cosign/cosign:v2.4.2 \
+	  ghcr.io/sigstore/cosign/cosign:v$(cosign_version) \
 	  public-key \
 	  --key /k0s/cosign.key --output-file /out/cosign.pub
