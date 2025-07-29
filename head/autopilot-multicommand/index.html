@@ -2568,6 +2568,11 @@
 
 
 
+<!--
+SPDX-FileCopyrightText: 2022 k0s authors
+SPDX-License-Identifier: CC-BY-SA-4.0
+-->
+
 <h1 id="multi-command-plans"><strong>Multi-Command Plans</strong><a class="headerlink" href="#multi-command-plans" title="Permanent link">#</a></h1>
 <p><strong>Autopilot</strong> relies on a <strong>Plan</strong> for defining the <strong>Commands</strong> that should be
 executed, the <strong>Signal Nodes</strong> that each should be run on, and the status of
@@ -2626,20 +2631,20 @@ processed by <strong>autopilot</strong>.</p>
 <span class="w"> </span><span class="nt">6:  spec</span><span class="p">:</span>
 <span class="w"> </span><span class="nt">7:    commands</span><span class="p">:</span>
 <span class="w"> </span><span class="nt">8:    - airgapupdate</span><span class="p">:</span>
-<span class="w"> </span><span class="nt">9:        version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.34.0-alpha.2+head</span>
+<span class="w"> </span><span class="nt">9:        version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.34.0-beta.0+head</span>
 <span class="nt">10:        platforms</span><span class="p">:</span>
 <span class="nt">11:          linux-amd64</span><span class="p">:</span>
-<span class="nt">12:            url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/k0sproject/k0s/releases/download/v1.34.0-alpha.2+head/k0s-airgap-bundle-v1.34.0-alpha.2+head-amd64</span>
+<span class="nt">12:            url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/k0sproject/k0s/releases/download/v1.34.0-beta.0+head/k0s-airgap-bundle-v1.34.0-beta.0+head-amd64</span>
 <span class="nt">13:        workers</span><span class="p">:</span>
 <span class="nt">14:          discovery</span><span class="p">:</span>
 <span class="nt">15:            static</span><span class="p">:</span>
 <span class="nt">16:              nodes</span><span class="p">:</span>
 <span class="nt">17</span><span class="p">:</span><span class="w">              </span><span class="err">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">worker0</span>
 <span class="nt">18:    - k0supdate</span><span class="p">:</span>
-<span class="nt">19:        version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.34.0-alpha.2+head</span>
+<span class="nt">19:        version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.34.0-beta.0+head</span>
 <span class="nt">20:        platforms</span><span class="p">:</span>
 <span class="nt">21:          linux-amd64</span><span class="p">:</span>
-<span class="nt">22:            url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/k0sproject/k0s/releases/download/v1.34.0-alpha.2+head/k0s-v1.34.0-alpha.2+head-amd64</span>
+<span class="nt">22:            url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/k0sproject/k0s/releases/download/v1.34.0-beta.0+head/k0s-v1.34.0-beta.0+head-amd64</span>
 <span class="nt">23:        targets</span><span class="p">:</span>
 <span class="nt">24:          controllers</span><span class="p">:</span>
 <span class="nt">25:            discovery</span><span class="p">:</span>
@@ -2838,7 +2843,7 @@ state transitions to the operations performed on each object.</p>
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright &copy; 2021 <a href="https://mirantis.com/">Mirantis Inc.</a> - All rights reserved.
+      Copyright &copy; 2021 k0sproject a Series of LF Projects, LLC. For website terms of use, trademark policy and other project policies please see <a href="https://lfprojects.org/policies/" target="_blank">Linux Foundation policies</a>. - All rights reserved.
     </div>
   
   

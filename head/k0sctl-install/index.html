@@ -2532,6 +2532,11 @@
 
 
 
+<!--
+SPDX-FileCopyrightText: 2021 k0s authors
+SPDX-License-Identifier: CC-BY-SA-4.0
+-->
+
 <h1 id="install-using-k0sctl">Install using k0sctl<a class="headerlink" href="#install-using-k0sctl" title="Permanent link">#</a></h1>
 <p>k0sctl is a command-line tool for bootstrapping and managing k0s clusters. k0sctl connects to the provided hosts using SSH and gathers information on the hosts, with which it forms a cluster by configuring the hosts, deploying k0s, and then connecting the k0s nodes together.</p>
 <p><img alt="k0sctl deployment" src="../img/k0sctl_deployment.png" /></p>
@@ -2597,8 +2602,8 @@
 <span class="go">INFO ==&gt; Running phase: Validate hosts</span>
 <span class="go">INFO ==&gt; Running phase: Gather k0s facts</span>
 <span class="go">INFO ==&gt; Running phase: Download K0s on the hosts</span>
-<span class="go">INFO [ssh] 10.0.0.2:22: downloading k0s v1.34.0-alpha.2+head</span>
-<span class="go">INFO [ssh] 10.0.0.1:22: downloading k0s v1.34.0-alpha.2+head</span>
+<span class="go">INFO [ssh] 10.0.0.2:22: downloading k0s v1.34.0-beta.0+head</span>
+<span class="go">INFO [ssh] 10.0.0.1:22: downloading k0s v1.34.0-beta.0+head</span>
 <span class="go">INFO ==&gt; Running phase: Configure K0s</span>
 <span class="go">WARN [ssh] 10.0.0.1:22: generating default configuration</span>
 <span class="go">INFO [ssh] 10.0.0.1:22: validating configuration</span>
@@ -2615,7 +2620,7 @@
 <span class="go">INFO [ssh] 10.0.0.2:22: waiting for node to become ready</span>
 <span class="go">INFO ==&gt; Running phase: Disconnect from hosts</span>
 <span class="go">INFO ==&gt; Finished in 2m2s</span>
-<span class="go">INFO k0s cluster version v1.34.0-alpha.2+head is now installed</span>
+<span class="go">INFO k0s cluster version v1.34.0-beta.0+head is now installed</span>
 <span class="go">INFO Tip: To access the cluster you can now fetch the admin kubeconfig using:</span>
 <span class="go">INFO      k0sctl kubeconfig</span>
 </code></pre></div>
@@ -2675,7 +2680,7 @@ kube-system<span class="w">   </span>metrics-server-6fbcd86f7b-5frtn<span class=
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright &copy; 2021 <a href="https://mirantis.com/">Mirantis Inc.</a> - All rights reserved.
+      Copyright &copy; 2021 k0sproject a Series of LF Projects, LLC. For website terms of use, trademark policy and other project policies please see <a href="https://lfprojects.org/policies/" target="_blank">Linux Foundation policies</a>. - All rights reserved.
     </div>
   
   

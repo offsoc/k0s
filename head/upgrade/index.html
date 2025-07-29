@@ -2442,6 +2442,11 @@
 
 
 
+<!--
+SPDX-FileCopyrightText: 2021 k0s authors
+SPDX-License-Identifier: CC-BY-SA-4.0
+-->
+
 <h1 id="upgrade">Upgrade<a class="headerlink" href="#upgrade" title="Permanent link">#</a></h1>
 <p>The k0s upgrade is a simple process due to its single binary distribution. The k0s single binary file includes all the necessary parts for the upgrade and essentially the upgrade process is to replace that file and restart the service.</p>
 <p>This tutorial explains two different approaches for k0s upgrade:</p>
@@ -2488,7 +2493,7 @@ upgrade.</p>
 <p>You can configure the desired cluster version in the k0sctl configuration by setting the value of <code>spec.k0s.version</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">k0s</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.34.0-alpha.2+head</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.34.0-beta.0+head</span>
 </code></pre></div>
 <p>If you do not specify a version, k0sctl checks online for the latest version and defaults to it.</p>
 <div class="highlight"><pre><span></span><code>k0sctl<span class="w"> </span>apply
@@ -2506,7 +2511,7 @@ INFO<span class="o">[</span><span class="m">0027</span><span class="o">]</span><
 INFO<span class="o">[</span><span class="m">0027</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>ssh<span class="o">]</span><span class="w"> </span><span class="m">10</span>.0.0.17:22:<span class="w"> </span>upgrade<span class="w"> </span>successful
 INFO<span class="o">[</span><span class="m">0027</span><span class="o">]</span><span class="w"> </span><span class="o">==</span>&gt;<span class="w"> </span>Running<span class="w"> </span>phase:<span class="w"> </span>Disconnect<span class="w"> </span>from<span class="w"> </span>hosts
 INFO<span class="o">[</span><span class="m">0027</span><span class="o">]</span><span class="w"> </span><span class="o">==</span>&gt;<span class="w"> </span>Finished<span class="w"> </span><span class="k">in</span><span class="w"> </span>27s
-INFO<span class="o">[</span><span class="m">0027</span><span class="o">]</span><span class="w"> </span>k0s<span class="w"> </span>cluster<span class="w"> </span>version<span class="w"> </span>v1.34.0-alpha.2+head<span class="w"> </span>is<span class="w"> </span>now<span class="w"> </span>installed
+INFO<span class="o">[</span><span class="m">0027</span><span class="o">]</span><span class="w"> </span>k0s<span class="w"> </span>cluster<span class="w"> </span>version<span class="w"> </span>v1.34.0-beta.0+head<span class="w"> </span>is<span class="w"> </span>now<span class="w"> </span>installed
 INFO<span class="o">[</span><span class="m">0027</span><span class="o">]</span><span class="w"> </span>Tip:<span class="w"> </span>To<span class="w"> </span>access<span class="w"> </span>the<span class="w"> </span>cluster<span class="w"> </span>you<span class="w"> </span>can<span class="w"> </span>now<span class="w"> </span>fetch<span class="w"> </span>the<span class="w"> </span>admin<span class="w"> </span>kubeconfig<span class="w"> </span>using:
 INFO<span class="o">[</span><span class="m">0027</span><span class="o">]</span><span class="w">      </span>k0sctl<span class="w"> </span>kubeconfig
 </code></pre></div>
@@ -2539,7 +2544,7 @@ INFO<span class="o">[</span><span class="m">0027</span><span class="o">]</span><
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright &copy; 2021 <a href="https://mirantis.com/">Mirantis Inc.</a> - All rights reserved.
+      Copyright &copy; 2021 k0sproject a Series of LF Projects, LLC. For website terms of use, trademark policy and other project policies please see <a href="https://lfprojects.org/policies/" target="_blank">Linux Foundation policies</a>. - All rights reserved.
     </div>
   
   
