@@ -249,6 +249,13 @@ airgap-image-bundle-linux-arm.tar \
 airgap-image-bundle-linux-riscv64.tar: k0s airgap-images.txt
 	./k0s airgap bundle-artifacts -v --platform='$(TARGET_PLATFORM)' -o '$@' <airgap-images.txt
 
+
+ipv6-test-images.txt: embedded-bins/Makefile.variables $(shell find hack/gen-test-images-list/ -type f)
+	$(GO) run -tags=hack hack/gen-test-images-list/cmd/main.go -o '$@' \
+		-alpine-version=$(alpine_version) \
+		-kubernetes-version=$(kubernetes_version) \
+		-sonobuoy-version=$(sonobuoy_version)
+
 ipv6-image-bundle-linux-amd64.tar:   TARGET_PLATFORM := linux/amd64
 ipv6-image-bundle-linux-arm64.tar:   TARGET_PLATFORM := linux/arm64
 ipv6-image-bundle-linux-arm.tar:     TARGET_PLATFORM := linux/arm/v7
@@ -256,21 +263,26 @@ ipv6-image-bundle-linux-riscv64.tar: TARGET_PLATFORM := linux/riscv64
 ipv6-image-bundle-linux-amd64.tar \
 ipv6-image-bundle-linux-arm64.tar \
 ipv6-image-bundle-linux-arm.tar \
-ipv6-image-bundle-linux-riscv64.tar: embedded-bins/Makefile.variables
+ipv6-image-bundle-linux-riscv64.tar: ipv6-test-images.txt
 	printf '%s\n' \
 		docker.io/library/nginx:1.29.0-alpine \
 		docker.io/library/alpine:$(alpine_version) \
 		docker.io/curlimages/curl:8.15.0 \
+		docker.io/sonobuoy/sonobuoy:v$(sonobuoy_version) \
+		registry.k8s.io/conformance:v$(kubernetes_version) \
+		registry.k8s.io/e2e-test-images/agnhost:2.56 \
+		registry.k8s.io/e2e-test-images/jessie-dnsutils:1.7 \
+		registry.k8s.io/e2e-test-images/nginx:1.14-4 \
+		registry.k8s.io/pause:3.10 \
 		| ./k0s airgap bundle-artifacts -v --platform='$(TARGET_PLATFORM)' -o '$@'
 
 .PHONY: $(smoketests)
 $(air_gapped_smoketests): airgap-image-bundle-linux-$(HOST_ARCH).tar
 check-calico-ipv6 check-kuberouter-ipv6: ipv6-image-bundle-linux-$(HOST_ARCH).tar
 $(smoketests): k0s
-# K0SMOTRON_IMAGES_BUNDLE is repurposed for the IPv6 test images
 	$(MAKE) -C inttest \
 		K0S_IMAGES_BUNDLE='$(CURDIR)/airgap-image-bundle-linux-$(HOST_ARCH).tar' \
-		K0SMOTRON_IMAGES_BUNDLE='$(CURDIR)/ipv6-image-bundle-linux-$(HOST_ARCH).tar' \
+		K0S_EXTRA_IMAGES_BUNDLE='$(CURDIR)/ipv6-image-bundle-linux-$(HOST_ARCH).tar' \
 		$@
 
 .PHONY: smoketests
