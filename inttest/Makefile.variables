@@ -2,7 +2,7 @@
 sonobuoy_version = 0.57.3
 
 # renovate: datasource=github-releases depName=helm/helm
-helm_version = 3.18.5
+helm_version = 3.18.6
 
 smoketests := \
 	check-addons \
@@ -81,7 +81,9 @@ smoketests := \
 
 air_gapped_smoketests := \
 	check-airgap \
-	check-ap-airgap \
+	check-ap-airgap
+
+ipv6_smoketests := \
 	check-calico-ipv6 \
 	check-cplb-ipvs-ipv6 \
 	check-cplb-userspace-ipv6 \
