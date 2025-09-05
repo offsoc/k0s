@@ -73,7 +73,7 @@ const (
 	KubePauseContainerImage            = "quay.io/k0sproject/pause"
 	KubePauseContainerImageVersion     = "3.10.1"
 	KubeProxyImage                     = "quay.io/k0sproject/kube-proxy"
-	KubeProxyImageVersion              = "v1.34.0-beta.0"
+	KubeProxyImageVersion              = "v1.34.0"
 	CoreDNSImage                       = "quay.io/k0sproject/coredns"
 	CoreDNSImageVersion                = "1.12.2-1"
 	EnvoyProxyImage                    = "quay.io/k0sproject/envoy-distroless"
@@ -107,6 +107,7 @@ const (
 	NodeRoleComponentName              = "node-role"
 	WindowsNodeComponentName           = "windows-node"
 	AutopilotComponentName             = "autopilot"
+	UpdateProberComponentName          = "update-prober"
 
 	// ClusterConfigNamespace is the namespace where we expect to find the ClusterConfig CRs
 	ClusterConfigNamespace  = "kube-system"
