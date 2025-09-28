@@ -4,12 +4,16 @@
 package main
 
 import (
+	"context"
 	"os"
 	"path"
 	"strings"
 
 	"github.com/k0sproject/k0s/cmd"
 	internallog "github.com/k0sproject/k0s/internal/pkg/log"
+	"github.com/k0sproject/k0s/internal/supervised"
+	"github.com/k0sproject/k0s/pkg/k0scontext"
+	"github.com/k0sproject/k0s/pkg/supervisor"
 )
 
 //go:generate make codegen
@@ -19,6 +23,10 @@ func init() {
 }
 
 func main() {
+	supervisor.TerminationHelperHook()
+
+	ctx, _ := k0scontext.ShutdownContext(context.Background())
+
 	// Make embedded commands work through symlinks such as /usr/local/bin/kubectl (or k0s-kubectl)
 	progN := strings.TrimPrefix(path.Base(os.Args[0]), "k0s-")
 	switch progN {
@@ -26,5 +34,7 @@ func main() {
 		os.Args = append([]string{"k0s", progN}, os.Args[1:]...)
 	}
 
-	cmd.Execute()
+	if err := supervised.Run(ctx, cmd.Execute); err != nil {
+		os.Exit(1)
+	}
 }
